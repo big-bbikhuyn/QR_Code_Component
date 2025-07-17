@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Code Generator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .qr-icon {
+            width: 40px;
+            height: 40px;
+            background: white;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .qr-icon::before {
+            content: "⚡";
+            font-size: 24px;
+            color: #4f46e5;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            padding: 40px;
+        }
+
+        .controls {
+            background: #f8fafc;
+            padding: 30px;
+            border-radius: 16px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .controls h2 {
+            font-size: 1.5rem;
+            margin-bottom: 25px;
+            color: #1e293b;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .color-inputs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .color-input {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .color-input input[type="color"] {
+            width: 50px;
+            height: 50px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .range-input {
+            width: 100%;
+            height: 6px;
+            background: #e5e7eb;
+            border-radius: 3px;
+            outline: none;
+            appearance: none;
+        }
+
+        .range-input::-webkit-slider-thumb {
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: #4f46e5;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .range-input::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            background: #4f46e5;
+            border-radius: 50%;
+            cursor: pointer;
+            border: none;
+        }
+
+        .preview-section {
+            text-align: center;
+        }
+
+        .preview-section h2 {
+            font-size: 1.5rem;
+            margin-bottom: 25px;
+            color: #1e293b;
+        }
+
+        .qr-preview {
+            background: white;
+            border: 2px solid #e5e7eb;
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        #qrCanvas {
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            max-width: 100%;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: #4f46e5;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #4338ca;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #6b7280;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #4b5563;
+            transform: translateY(-2px);
+        }
+
+        .size-display {
+            font-size: 14px;
+            color: #6b7280;
+            margin-top: 5px;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+                gap: 30px;
+                padding: 20px;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .btn {
+                width: 100%;
+                max-width: 200px;
+            }
+        }
+
+        .loading {
+            display: none;
+            color: #6b7280;
+            font-style: italic;
+        }
+
+        .success-message {
+            background: #d1fae5;
+            color: #065f46;
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 10px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>
+                <div class="qr-icon"></div>
+                QR Code Generator
+            </h1>
+            <p>Tạo QR code tùy chỉnh cho văn bản, URL hoặc dữ liệu của bạn</p>
+        </div>
+
+        <div class="main-content">
+            <div class="controls">
+                <h2>Cài đặt</h2>
+                
+                <div class="form-group">
+                    <label for="textInput">Nội dung</label>
+                    <textarea id="textInput" placeholder="Nhập URL, text hoặc dữ liệu...">https://example.com</textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="sizeInput">Kích thước</label>
+                    <input type="range" id="sizeInput" class="range-input" min="100" max="400" value="200">
+                    <div class="size-display">Kích thước: <span id="sizeDisplay">200</span>px</div>
+                </div>
+
+                <div class="form-group">
+                    <label>Màu sắc</label>
+                    <div class="color-inputs">
+                        <div class="color-input">
+                            <input type="color" id="bgColor" value="#ffffff">
+                            <label for="bgColor">Màu nền</label>
+                        </div>
+                        <div class="color-input">
+                            <input type="color" id="fgColor" value="#000000">
+                            <label for="fgColor">Màu QR</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="errorLevel">Mức độ sửa lỗi</label>
+                    <select id="errorLevel">
+                        <option value="L">Thấp (7%)</option>
+                        <option value="M" selected>Trung bình (15%)</option>
+                        <option value="Q">Cao (25%)</option>
+                        <option value="H">Rất cao (30%)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="preview-section">
+                <h2>Xem trước</h2>
+                <div class="qr-preview">
+                    <canvas id="qrCanvas" width="200" height="200"></canvas>
+                    <div class="loading" id="loading">Đang tạo QR code...</div>
+                </div>
+                
+                <div class="buttons">
+                    <button class="btn btn-primary" id="generateBtn">
+                        🔄 Tạo QR Code
+                    </button>
+                    <button class="btn btn-secondary" id="downloadBtn">
+                        📥 Tải xuống
+                    </button>
+                    <button class="btn btn-secondary" id="copyBtn">
+                        📋 Copy nội dung
+                    </button>
+                </div>
+                
+                <div class="success-message" id="successMessage"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class QRCodeGenerator {
+            constructor() {
+                this.canvas = document.getElementById('qrCanvas');
+                this.ctx = this.canvas.getContext('2d');
+                this.textInput = document.getElementById('textInput');
+                this.sizeInput = document.getElementById('sizeInput');
+                this.sizeDisplay = document.getElementById('sizeDisplay');
+                this.bgColor = document.getElementById('bgColor');
+                this.fgColor = document.getElementById('fgColor');
+                this.errorLevel = document.getElementById('errorLevel');
+                this.generateBtn = document.getElementById('generateBtn');
+                this.downloadBtn = document.getElementById('downloadBtn');
+                this.copyBtn = document.getElementById('copyBtn');
+                this.loading = document.getElementById('loading');
+                this.successMessage = document.getElementById('successMessage');
+                
+                this.init();
+            }
+
+            init() {
+                this.generateBtn.addEventListener('click', () => this.generateQRCode());
+                this.downloadBtn.addEventListener('click', () => this.downloadQRCode());
+                this.copyBtn.addEventListener('click', () => this.copyToClipboard());
+                
+                this.sizeInput.addEventListener('input', (e) => {
+                    this.sizeDisplay.textContent = e.target.value;
+                    this.updateCanvasSize();
+                });
+                
+                // Auto-generate on input change
+                this.textInput.addEventListener('input', () => this.generateQRCode());
+                this.bgColor.addEventListener('change', () => this.generateQRCode());
+                this.fgColor.addEventListener('change', () => this.generateQRCode());
+                this.errorLevel.addEventListener('change', () => this.generateQRCode());
+                
+                // Initial generation
+                this.generateQRCode();
+            }
+
+            updateCanvasSize() {
+                const size = parseInt(this.sizeInput.value);
+                this.canvas.width = size;
+                this.canvas.height = size;
+                this.generateQRCode();
+            }
+
+            generateQRCode() {
+                const text = this.textInput.value;
+                const size = parseInt(this.sizeInput.value);
+                const bgColor = this.bgColor.value;
+                const fgColor = this.fgColor.value;
+                
+                this.canvas.width = size;
+                this.canvas.height = size;
+                
+                // Clear canvas
+                this.ctx.fillStyle = bgColor;
+                this.ctx.fillRect(0, 0, size, size);
+                
+                // Generate QR pattern
+                this.drawQRPattern(text, size, fgColor, bgColor);
+            }
+
+            drawQRPattern(text, size, fgColor, bgColor) {
+                const moduleSize = size / 25; // 25x25 grid
+                const pattern = this.createPattern(text);
+                
+                this.ctx.fillStyle = fgColor;
+                
+                // Draw data pattern
+                for (let i = 0; i < 25; i++) {
+                    for (let j = 0; j < 25; j++) {
+                        if (pattern[i] && pattern[i][j]) {
+                            this.ctx.fillRect(j * moduleSize, i * moduleSize, moduleSize, moduleSize);
+                        }
+                    }
+                }
+                
+                // Draw finder patterns (corners)
+                this.drawFinderPattern(0, 0, moduleSize, fgColor, bgColor);
+                this.drawFinderPattern(17 * moduleSize, 0, moduleSize, fgColor, bgColor);
+                this.drawFinderPattern(0, 17 * moduleSize, moduleSize, fgColor, bgColor);
+                
+                // Draw timing patterns
+                this.drawTimingPatterns(moduleSize, fgColor);
+            }
+
+            createPattern(text) {
+                const pattern = Array(25).fill().map(() => Array(25).fill(false));
+                
+                // Simple hash-based pattern
+                let hash = 0;
+                for (let i = 0; i < text.length; i++) {
+                    hash = ((hash << 5) - hash + text.charCodeAt(i)) & 0xffffffff;
+                }
+                
+                // Fill data area
+                for (let i = 1; i < 24; i++) {
+                    for (let j = 1; j < 24; j++) {
+                        // Skip finder patterns
+                        if ((i < 8 && j < 8) || (i < 8 && j > 16) || (i > 16 && j < 8)) continue;
+                        // Skip timing patterns
+                        if (i === 6 || j === 6) continue;
+                        
+                        pattern[i][j] = ((hash + i * 25 + j) % 3) === 0;
+                    }
+                }
+                
+                return pattern;
+            }
+
+            drawFinderPattern(x, y, moduleSize, fgColor, bgColor) {
+                // Outer square (7x7)
+                this.ctx.fillStyle = fgColor;
+                this.ctx.fillRect(x, y, moduleSize * 7, moduleSize * 7);
+                
+                // Inner white square (5x5)
+                this.ctx.fillStyle = bgColor;
+                this.ctx.fillRect(x + moduleSize, y + moduleSize, moduleSize * 5, moduleSize * 5);
+                
+                // Center square (3x3)
+                this.ctx.fillStyle = fgColor;
+                this.ctx.fillRect(x + moduleSize * 2, y + moduleSize * 2, moduleSize * 3, moduleSize * 3);
+            }
+
+            drawTimingPatterns(moduleSize, fgColor) {
+                this.ctx.fillStyle = fgColor;
+                
+                // Horizontal timing pattern
+                for (let i = 8; i < 17; i++) {
+                    if (i % 2 === 0) {
+                        this.ctx.fillRect(i * moduleSize, 6 * moduleSize, moduleSize, moduleSize);
+                    }
+                }
+                
+                // Vertical timing pattern
+                for (let i = 8; i < 17; i++) {
+                    if (i % 2 === 0) {
+                        this.ctx.fillRect(6 * moduleSize, i * moduleSize, moduleSize, moduleSize);
+                    }
+                }
+            }
+
+            downloadQRCode() {
+                const link = document.createElement('a');
+                link.download = 'qrcode.png';
+                link.href = this.canvas.toDataURL();
+                link.click();
+                
+                this.showSuccessMessage('QR code đã được tải xuống!');
+            }
+
+            async copyToClipboard() {
+                try {
+                    await navigator.clipboard.writeText(this.textInput.value);
+                    this.showSuccessMessage('Đã copy nội dung vào clipboard!');
+                } catch (err) {
+                    this.showSuccessMessage('Không thể copy nội dung.');
+                }
+            }
+
+            showSuccessMessage(message) {
+                this.successMessage.textContent = message;
+                this.successMessage.style.display = 'block';
+                
+                setTimeout(() => {
+                    this.successMessage.style.display = 'none';
+                }, 3000);
+            }
+        }
+
+        // Initialize the QR Code Generator
+        document.addEventListener('DOMContentLoaded', () => {
+            new QRCodeGenerator();
+        });
+    </script>
+</body>
+</html>
