@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -275,6 +276,7 @@
         }
     </style>
 </head>
+
 <body>
     <div class="container">
         <div class="header">
@@ -288,7 +290,7 @@
         <div class="main-content">
             <div class="controls">
                 <h2>Cài đặt</h2>
-                
+
                 <div class="form-group">
                     <label for="textInput">Nội dung</label>
                     <textarea id="textInput" placeholder="Nhập URL, text hoặc dữ liệu...">https://example.com</textarea>
@@ -331,7 +333,7 @@
                     <canvas id="qrCanvas" width="200" height="200"></canvas>
                     <div class="loading" id="loading">Đang tạo QR code...</div>
                 </div>
-                
+
                 <div class="buttons">
                     <button class="btn btn-primary" id="generateBtn">
                         🔄 Tạo QR Code
@@ -343,7 +345,7 @@
                         📋 Copy nội dung
                     </button>
                 </div>
-                
+
                 <div class="success-message" id="successMessage"></div>
             </div>
         </div>
@@ -365,7 +367,7 @@
                 this.copyBtn = document.getElementById('copyBtn');
                 this.loading = document.getElementById('loading');
                 this.successMessage = document.getElementById('successMessage');
-                
+
                 this.init();
             }
 
@@ -373,18 +375,18 @@
                 this.generateBtn.addEventListener('click', () => this.generateQRCode());
                 this.downloadBtn.addEventListener('click', () => this.downloadQRCode());
                 this.copyBtn.addEventListener('click', () => this.copyToClipboard());
-                
+
                 this.sizeInput.addEventListener('input', (e) => {
                     this.sizeDisplay.textContent = e.target.value;
                     this.updateCanvasSize();
                 });
-                
+
                 // Auto-generate on input change
                 this.textInput.addEventListener('input', () => this.generateQRCode());
                 this.bgColor.addEventListener('change', () => this.generateQRCode());
                 this.fgColor.addEventListener('change', () => this.generateQRCode());
                 this.errorLevel.addEventListener('change', () => this.generateQRCode());
-                
+
                 // Initial generation
                 this.generateQRCode();
             }
@@ -401,14 +403,14 @@
                 const size = parseInt(this.sizeInput.value);
                 const bgColor = this.bgColor.value;
                 const fgColor = this.fgColor.value;
-                
+
                 this.canvas.width = size;
                 this.canvas.height = size;
-                
+
                 // Clear canvas
                 this.ctx.fillStyle = bgColor;
                 this.ctx.fillRect(0, 0, size, size);
-                
+
                 // Generate QR pattern
                 this.drawQRPattern(text, size, fgColor, bgColor);
             }
@@ -416,9 +418,9 @@
             drawQRPattern(text, size, fgColor, bgColor) {
                 const moduleSize = size / 25; // 25x25 grid
                 const pattern = this.createPattern(text);
-                
+
                 this.ctx.fillStyle = fgColor;
-                
+
                 // Draw data pattern
                 for (let i = 0; i < 25; i++) {
                     for (let j = 0; j < 25; j++) {
@@ -427,25 +429,25 @@
                         }
                     }
                 }
-                
+
                 // Draw finder patterns (corners)
                 this.drawFinderPattern(0, 0, moduleSize, fgColor, bgColor);
                 this.drawFinderPattern(17 * moduleSize, 0, moduleSize, fgColor, bgColor);
                 this.drawFinderPattern(0, 17 * moduleSize, moduleSize, fgColor, bgColor);
-                
+
                 // Draw timing patterns
                 this.drawTimingPatterns(moduleSize, fgColor);
             }
 
             createPattern(text) {
                 const pattern = Array(25).fill().map(() => Array(25).fill(false));
-                
+
                 // Simple hash-based pattern
                 let hash = 0;
                 for (let i = 0; i < text.length; i++) {
                     hash = ((hash << 5) - hash + text.charCodeAt(i)) & 0xffffffff;
                 }
-                
+
                 // Fill data area
                 for (let i = 1; i < 24; i++) {
                     for (let j = 1; j < 24; j++) {
@@ -453,11 +455,11 @@
                         if ((i < 8 && j < 8) || (i < 8 && j > 16) || (i > 16 && j < 8)) continue;
                         // Skip timing patterns
                         if (i === 6 || j === 6) continue;
-                        
+
                         pattern[i][j] = ((hash + i * 25 + j) % 3) === 0;
                     }
                 }
-                
+
                 return pattern;
             }
 
@@ -465,11 +467,11 @@
                 // Outer square (7x7)
                 this.ctx.fillStyle = fgColor;
                 this.ctx.fillRect(x, y, moduleSize * 7, moduleSize * 7);
-                
+
                 // Inner white square (5x5)
                 this.ctx.fillStyle = bgColor;
                 this.ctx.fillRect(x + moduleSize, y + moduleSize, moduleSize * 5, moduleSize * 5);
-                
+
                 // Center square (3x3)
                 this.ctx.fillStyle = fgColor;
                 this.ctx.fillRect(x + moduleSize * 2, y + moduleSize * 2, moduleSize * 3, moduleSize * 3);
@@ -477,14 +479,14 @@
 
             drawTimingPatterns(moduleSize, fgColor) {
                 this.ctx.fillStyle = fgColor;
-                
+
                 // Horizontal timing pattern
                 for (let i = 8; i < 17; i++) {
                     if (i % 2 === 0) {
                         this.ctx.fillRect(i * moduleSize, 6 * moduleSize, moduleSize, moduleSize);
                     }
                 }
-                
+
                 // Vertical timing pattern
                 for (let i = 8; i < 17; i++) {
                     if (i % 2 === 0) {
@@ -498,7 +500,7 @@
                 link.download = 'qrcode.png';
                 link.href = this.canvas.toDataURL();
                 link.click();
-                
+
                 this.showSuccessMessage('QR code đã được tải xuống!');
             }
 
@@ -514,7 +516,7 @@
             showSuccessMessage(message) {
                 this.successMessage.textContent = message;
                 this.successMessage.style.display = 'block';
-                
+
                 setTimeout(() => {
                     this.successMessage.style.display = 'none';
                 }, 3000);
@@ -527,4 +529,5 @@
         });
     </script>
 </body>
+
 </html>
