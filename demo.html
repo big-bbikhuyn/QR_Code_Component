@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR_code</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>
+                <div class="qr-icon"></div>
+                QR Code Generator
+            </h1>
+            <p>Tạo QR code tùy chỉnh cho văn bản, URL hoặc dữ liệu của bạn</p>
+        </div>
+        <div class="main-content">
+            <div class="controls">
+                <h2>Cài đặt</h2>
+                <div class="form-group">
+                    <label for="textInput">Nội dung</label>
+                    <textarea id="textInput" placeholder="Nhập URL, text hoặc dữ liệu...">https://example.com</textarea>
+                </div>
+                <div class="form-group">
+                    <label for="sizeInput">Kích thước</label>
+                    <input type="range" id="sizeInput" class="range-input" min="100" max="400" value="200">
+                    <div class="size-display">Kích thước: <span id="sizeDisplay">200</span>px</div>
+                </div>
+                <div class="form-group">
+                    <label>Màu sắc</label>
+                    <div class="color-inputs">
+                        <div class="color-input">
+                            <input type="color" id="bgColor" value="#ffffff">
+                            <label for="bgColor">Màu nền</label>
+                        </div>
+                        <div class="color-input">
+                            <input type="color" id="fgColor" value="#000000">
+                            <label for="fgColor">Màu QR</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="errorLevel">Mức độ sửa lỗi</label>
+                    <select id="errorLevel">
+                        <option value="L">Thấp (7%)</option>
+                        <option value="M" selected>Trung bình (15%)</option>
+                        <option value="Q">Cao (25%)</option>
+                        <option value="H">Rất cao (30%)</option>
+                    </select>
+                </div>
+            </div>
+            <div class="preview-section">
+                <h2>Xem trước</h2>
+                <div class="qr-preview">
+                    <canvas id="qrCanvas" width="200" height="200"></canvas>
+                    <div class="loading" id="loading">Đang tạo QR code...</div>
+                </div>
+                <div class="buttons">
+                    <button class="btn btn-primary" id="generateBtn"><i class="bi bi-arrow-clockwise"> Tạo QR Code</i></button>
+                    <button class="btn btn-secondary" id="downloadBtn"><i class="bi bi-check2-circle"> Tải xuống</i></button>
+                    <button class="btn btn-secondary" id="copyBtn"><i class="bi bi-copy"> Copy nội dung</i></button>
+                </div>
+                <div class="success-message" id="successMessage"></div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
